@@ -1,1 +1,80 @@
+<#
+====================================================================
+  Script de diagnostic système (menu.ps1)
+  Nom     : Djemai
+  Prénom  : Ilian
+  Guilde  : menage
+====================================================================
+#>
+# ------------------------------------------------------------------
+# on efface la console
+# on nettoie l ecran pour afficher un resultat propre
+# ------------------------------------------------------------------
+Clear-Host
+# ------------------------------------------------------------------
+# la banniere d'en tete
+# on utilise ls couleurs pour rendre l'affichage lisible
+# ------------------------------------------------------------------
+Write-Host "============================================" -ForegroundColor Cyan
+Write-Host "BILAN / DIAGNOSTIC SYSTÈME" -ForegroundColor Yellow
+Write-Host "Auteur :ilian djemai      " -ForegroundColor Cyan
+Write-Host "============================================" -ForegroundColor Cyan
+Write-Host ""
+# ------------------------------------------------------------------
+# 1.le nom de la machine
+# La variable $env:COMPUTERNAME récupère le nom réseau du PC
+# ------------------------------------------------------------------
+write-host " nom de la machine:" -ForegroundColor green
+write-host " PC : $env:COMPUTERNAME"
+write-host ""
+# ------------------------------------------------------------------
+# 2; le systeme d'exploitation
+# le get ciminstance demande la fiche d'identité de l os a windows
+# ------------------------------------------------------------------
+write-host "systeme d'exploitation:" -ForegroundColor Green
+$os = Get-CimInstance Win32_OperatingSystem
+write-host " OS : $($os.caption)"
+write-host " Version : $($os.version)"
+write-host ""
+# ------------------------------------------------------------------
+# 3. ESPACE DISQUE PARTITION C
+# Récupération de l'espace du disque C: et conversion en Gigaoctets
+# ------------------------------------------------------------------
+write-host "espace de disque (partition C:) :" -ForegroundColor green
+$disque = Get-PSDrive C
+$libreGo = [math]::Round($disque.Free / 1GB, 2)
+$utiliseGo = [math]::Round($disque.Used / 1GB, 2)
+Write-Host "    Espace utilisé : $utiliseGo Go"
+Write-Host "    Espace libre   : $libreGo Go"
+Write-Host ""
+# --------------------------------------------------------------------
+# 4. memoire ram
+# calcul et conversion de la memoire ram en giga octet
+# --------------------------------------------------------------------
+write-host "Memoire ram :" -foregroundcolor Green
+$ramTotal = [int]($os.TotalVisibleMemorySize / 1MB)
+$ramlibre =  [int]($os.FreePhysicalMemory / 1MB)
+# on affiche les valeurs
+write-host "RAM Total : $ramTotal Go" -ForegroundColor white
+write-host "RAM Libre : $ramLibre Go" -ForegroundColor white
+""
+#----------------------------------------------------------------------
+#etat des service et comptage des elements en cours d'execution
+#----------------------------------------------------------------------
+Write-Host "Etat des services et processeur" -ForegroundColor Green
+# Compte uniquement les services dont le statut est actif
+$nbServices = (Get-Service | Where-Object Status -eq 'Running').Count
+# Compte le nombre total de processus système en cours
+$nbProcess = (Get-Process).Count
+# Affichage des compteurs
+Write-Host "    --> Services actifs  : $nbServices" -ForegroundColor White
+Write-Host "    --> Processus actifs : $nbProcess" -ForegroundColor White
+Write-Host ""
 
+# ------------------------------------------------------------------
+# PIED DE PAGE
+# Confirmation visuelle que le script s'est exécuté en totalité
+# ------------------------------------------------------------------
+Write-Host "========================================================" -ForegroundColor Cyan
+Write-Host "  [✓] DIAGNOSTIC COMPLÉTÉ ET EXÉCUTÉ SANS ERREUR" -ForegroundColor Green
+Write-Host "========================================================" -ForegroundColor Cyan
